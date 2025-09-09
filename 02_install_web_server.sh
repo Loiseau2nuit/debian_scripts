@@ -36,15 +36,12 @@ ${SUDO} apt-get install -y php8.4-fpm
 ${SUDO} mysql_secure_installation
 
 ## Installing adminer (https://adminer.org)
-# Or maybe not ! As adminer seems to have been discontinued for 2 years now.
-# AdminerEvo is a fork which started as of July 2023 but let's be honnest, I'd rather use a local BDD client from now on
+# Or maybe not ! I'd rather use a local BDD client from now on
 # (like DBeaver for example). I'm just leaving those lines here to avoid regression. I'll let you choose & uncomment 
-# which one you really want if ever you want one
+# if you really want it
 #
 # cd /var/www/html/
-# ${SUDO} wget https://github.com/vrana/adminer/releases/download/v4.8.1/adminer-4.8.1.php -O admnr.php
-# or
-# ${SUDO} wget https://github.com/adminerevo/adminerevo/releases/download/v4.8.2/adminer-4.8.2.php -O admnr.php
+# ${SUDO} wget https://github.com/vrana/adminer/releases/download/v5.4.0/adminer-5.4.0.php -O adminer.php
 
 # then, to configure all that shit, just go to
 # https://www.geek17.com/fr/content/debian-11-bullseye-installer-et-configurer-la-derniere-version-de-php-8-fpm-avec-nginx-121
