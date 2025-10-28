@@ -64,7 +64,7 @@ select_site() {
 backup_site() {
   for SITE in $SITES; do
     SITE_PATH="$WWW_ROOT/$SITE"
-    [ ! -d "$SITE_PATH" ] && echo ⚠️  Dossier $SITE_PATH introuvable" && continue
+    [ ! -d "$SITE_PATH" ] && echo "⚠️  Dossier $SITE_PATH introuvable" && continue
 
     DB_NAME=$(grep -oP "(?<=DB_NAME[='\"])[^'\"]+" "$SITE_PATH"/config* 2>/dev/null | head -n1)
     [ -z "$DB_NAME" ] && echo "⚠️  Base introuvable dans la config du site $SITE" && continue
