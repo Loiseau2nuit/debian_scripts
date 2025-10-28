@@ -176,7 +176,21 @@ server {
 EOF
 
   ln -s "$NGINX_CONF" "$NGINX_ENABLED/$DEST.conf" 2>/dev/null || true
-  nginx -t && systemctl reload nginx
+
+  echo "🔎 Vérification de la configuration Nginx…"
+  if ! nginx -t; then
+      echo "❌ Erreur dans la configuration Nginx"
+      echo "---- Dernières lignes du journal Nginx ----"
+      journalctl -u nginx -n 20 --no-pager
+      exit 1
+  fi
+
+  if ! systemctl reload nginx; then
+      echo "❌ Impossible de recharger Nginx"
+      echo "---- Dernières lignes du journal Nginx ----"
+      journalctl -u nginx -n 20 --no-pager
+      exit 1
+  fi
 
   echo
   echo "✅ Copie de test déployée avec succès !"
