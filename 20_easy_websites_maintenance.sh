@@ -147,7 +147,7 @@ clone_site() {
 
   # --- Modification config site
   echo "⚙️  Ajustement du fichier de configuration..."
-  find "$DEST_PATH" -type f -exec sed -i "s/$SRC_DB/$DEST_DB/g" {} +
+  find "$DEST_PATH" \( -name "*.php" -o -name "*.conf" -o -name "*.env" \) \ -type f -exec sed -i "s/$SRC_DB/$DEST_DB/g" {} +
 
   # --- Configuration Nginx
   echo "🌐 Génération de la configuration Nginx..."
