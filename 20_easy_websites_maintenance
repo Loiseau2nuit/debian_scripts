@@ -2,7 +2,7 @@
 # ====================================================================
 # Websites maintenance tool : backups and clones
 # Auteur : (c) Loiseau2nuit 2025
-# Version : 0.1
+# Version : 0.2
 # Status : UNTESTED YET ! NOT FOR PRODUCTION PURPOSE !
 # ====================================================================
 # - Manual backups (e.g. : before upgrades or heavy maintenance)
@@ -66,7 +66,7 @@ backup_site() {
     SITE_PATH="$WWW_ROOT/$SITE"
     [ ! -d "$SITE_PATH" ] && echo "⚠️  Dossier $SITE_PATH introuvable" && continue
 
-    DB_NAME=$(grep -oP "(?<=DB_NAME[='\"])[^'\"]+" "$SITE_PATH"/config* 2>/dev/null | head -n1)
+    DB_NAME=$(grep -RohP "(?<=DB_NAME[='\"])[^'\"]+" "$SITE_PATH" | head -n1) 
     [ -z "$DB_NAME" ] && echo "⚠️  Base introuvable dans la config du site $SITE" && continue
 
     DATE=$(date +"%F_%H-%M-%S")
@@ -103,7 +103,7 @@ clone_site() {
   cp -a "$SRC_PATH" "$DEST_PATH"
 
   # --- Base de données
-  SRC_DB=$(grep -oP "(?<=DB_NAME[='\"])[^'\"]+" "$SRC_PATH"/config* 2>/dev/null | head -n1)
+  SRC_DB=$(grep -RohP "(?<=DB_NAME[='\"])[^'\"]+" "$SITE_PATH" | head -n1)
   [ -z "$SRC_DB" ] && echo "⚠️  Impossible de déterminer la BDD source." && exit 1
   DEST_DB="${SRC_DB}_test"
 
