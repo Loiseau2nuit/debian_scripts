@@ -6,21 +6,34 @@ if [ "$(whoami)" != "root" ]; then
     SUDO=sudo
 fi
 
-${SUDO} apt-get -y install apt-transport-https lsb-release ca-certificates curl
+${SUDO} apt-get -y install apt-transport-https lsb-release ca-certificates curl gnupg2 debian-archive-keyring
+
+## REPOS
+# deb.sury.org
 ${SUDO} curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
 ${SUDO} dpkg -i /tmp/debsuryorg-archive-keyring.deb
-${SUDO} sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/nginx/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/nginx.list'
 ${SUDO} sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+
+# Nginx official stable
+${SUDO} curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | ${SUDO} tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+${SUDO} sh -c 'echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/debian $(lsb_release -sc) nginx" > /etc/apt/sources.list.d/nginx.list'
+
 ${SUDO} apt-get update
 
-## NGINX + MARIADB
+## INSTALL
+
+# Nginx + MariaDB
 ${SUDO} apt-get install -y nginx mariadb-server
 
-# PHP 8.4 : Active support 31 Dec. 2026 / Security support 31 Dec. 2028 
-${SUDO} apt-get install -y php8.4-cli php8.4-common php8.4-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip}    
-${SUDO} apt-get install -y php8.4-fpm
+# PHP 8.5 : Active support 31 Dec. 2027 / Security support 31 Dec. 2029 
+${SUDO} apt-get install -y php8.5-cli php8.5-common php8.5-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip}    
+${SUDO} apt-get install -y php8.5-fpm
 
 ## you can add other php versions, if needed :
+
+# PHP 8.4 : Active support 31 Dec. 2026 / Security support 31 Dec. 2028 
+# ${SUDO} apt-get install -y php8.4-cli php8.4-common php8.4-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip}    
+# ${SUDO} apt-get install -y php8.4-fpm
 
 ## PHP 8.3 : Active support 31 Dec. 2025 / Security support 31 Dec. 2027 
 # ${SUDO} apt-get install -y php8.3-cli php8.3-common php8.3-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip}    
