@@ -26,7 +26,7 @@ ${SUDO} apt-get update
 ${SUDO} apt-get install -y nginx mariadb-server
 
 # PHP 8.5 : Active support 31 Dec. 2027 / Security support 31 Dec. 2029 
-${SUDO} apt-get install -y php8.5-cli php8.5-common php8.5-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip}    
+${SUDO} apt-get install -y php8.5-cli php8.5-common php8.5-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,readline,snmp,soap,xml,xmlrpc,zip}    
 ${SUDO} apt-get install -y php8.5-fpm
 
 ## you can add other php versions, if needed :
