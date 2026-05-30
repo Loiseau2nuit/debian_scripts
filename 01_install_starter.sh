@@ -18,7 +18,7 @@ ${SUDO} dpkg -i glpi-agent_1.17-1_all.deb
 
 # fastfetch
 cd
-wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.16.0/fastfetch-linux-amd64.deb
+wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.63.1/fastfetch-linux-amd64.deb
 ${SUDO} dpkg -i fastfetch-linux-amd64.deb
 
 # set ZSH up as your default shell
