@@ -13,8 +13,8 @@ ${SUDO} apt-get -y install apticron bpytop ccze cowsay curl dnsutils exa fail2ba
 
 # glpi-agent
 cd
-wget https://github.com/glpi-project/glpi-agent/releases/download/1.11/glpi-agent_1.11-1_all.deb
-${SUDO} dpkg -i glpi-agent_1.11-1_all.deb
+wget https://github.com/glpi-project/glpi-agent/releases/download/1.17/glpi-agent_1.17-1_all.deb
+${SUDO} dpkg -i glpi-agent_1.17-1_all.deb
 
 # fastfetch
 cd
