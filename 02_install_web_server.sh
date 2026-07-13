@@ -35,14 +35,6 @@ ${SUDO} apt-get install -y php8.5-fpm
 # ${SUDO} apt-get install -y php8.4-cli php8.4-common php8.4-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip}    
 # ${SUDO} apt-get install -y php8.4-fpm
 
-## PHP 8.3 : Active support 31 Dec. 2025 / Security support 31 Dec. 2027 
-# ${SUDO} apt-get install -y php8.3-cli php8.3-common php8.3-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip}    
-# ${SUDO} apt-get install -y php8.3-fpm
-
-## PHP 8.2 : Active support 31 Dec. 2024 / Security support 31 Dec. 2026
-# ${SUDO} apt-get install -y php8.2-cli php8.2-common php8.2-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip}    
-# ${SUDO} apt-get install -y php8.2-fpm
-
 
 ## SECURING MYSQL
 # as we installed mariadb-server we assume you'll want to secure it a bit
@@ -54,7 +46,7 @@ ${SUDO} mysql_secure_installation
 # if you really want it
 #
 # cd /var/www/html/
-# ${SUDO} wget https://github.com/vrana/adminer/releases/download/v5.4.0/adminer-5.4.0.php -O adminer.php
+# ${SUDO} wget https://github.com/vrana/adminer/releases/download/v5.4.2/adminer-5.4.2.php -O adminer.php
 
 # then, to configure all that shit, just go to
 # https://www.geek17.com/fr/content/debian-11-bullseye-installer-et-configurer-la-derniere-version-de-php-8-fpm-avec-nginx-121
