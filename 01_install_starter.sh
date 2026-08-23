@@ -31,8 +31,10 @@ sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.
 echo " " >> ~/.zshrc
 echo " \# some new adds of mine " >> ~/.zshrc
 echo " alias ls='ls -ailsh --color' " >> ~/.zshrc
-echo " alias lx='exa -lRTL=2' " >> ~/.zshrc
-echo " alias top='bpytop' " >> ~/.zshrc
+echo " alias grep='grep --color' " >> ~/.zshrc
+echo " alias top='btop' " >> ~/.zshrc
+echo " alias cat='batcat' " >> ~/.zshrc
+echo " alias less='batcat' " >> ~/.zshrc
 echo " alias rm='rm -i' " >> ~/.zshrc
 echo " alias mv='mv -i' " >> ~/.zshrc
 echo " alias cp='cp -i' " >> ~/.zshrc
