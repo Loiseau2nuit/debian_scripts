@@ -13,8 +13,8 @@ ${SUDO} apt-get -y install apticron btop bat ccze cowsay curl dnsutils fail2ban 
 
 # glpi-agent
 cd
-wget https://github.com/glpi-project/glpi-agent/releases/download/1.17/glpi-agent_1.17-1_all.deb
-${SUDO} dpkg -i glpi-agent_1.17-1_all.deb
+wget https://github.com/glpi-project/glpi-agent/releases/download/1.19/glpi-agent_1.19-1_all.deb
+${SUDO} dpkg -i glpi-agent_1.19-1_all.deb
 
 # fastfetch
 cd
