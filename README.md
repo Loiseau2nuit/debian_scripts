@@ -1,40 +1,51 @@
-# debian_starter_kit
-Complete your Debian server up in minutes!
+# Debian Starter Kit
 
-## What's this ?
+A collection of personal Bash scripts for setting up and maintaining Debian servers. The scripts are independent utilities, not a complete unattended provisioning system. Review each script and adjust its configuration for your server before running it.
 
-Some usefull scripts to run after installing a debian dedicated server, VM or VPS.
+Some scripts install packages or change system configuration. Run only the scripts you need, and make sure you have a current backup before performing maintenance or distribution upgrades.
 
-It implies that the OS is already installed and the machine is up & running (which is mostly the case when you work on an infrastructure with deployment facilities). If not, you'll have to set your server up before executing those.
+## Scripts
 
-It basically brings, through a few scripts, the additional tools you might need to run on any Debian server such as : common dependencies, improved CLIs or utilities tools, or whatever you like to have on basically any server that is not installed by default. Mainly designed for operating web servers, this is essentialy what me, myself and I 'd like to have on a server after the OS is up, but feel free to personalize them scripts before you use them.
+| Script | Purpose | Notes |
+| --- | --- | --- |
+| `01_install_starter.sh` | Sets the timezone to `Europe/Paris` and installs common administration tools. | Run as root or with `sudo`. Prompts whether to install GLPI Agent 1.21 and asks for the GLPI server URL. |
+| `02_install_web_server.sh` | Installs Nginx, PHP 8.5 from the Sury repository, MariaDB, and Certbot. | Run as root or with `sudo`. Review the repository and package choices for your Debian release. The script includes interactive configuration steps. |
+| `03_node_install_and_update.sh` | Checks for a Node.js update and can switch the `/opt/node` symlink to a downloaded release after SHA256 verification. | Review the paths and `MAIL_TO` setting at the top of the script. It expects Node.js to be installed under `/opt` and uses email notifications. |
+| `04_setup_zsh.sh` | Sets Zsh as the default shell and configures Oh My Zsh and aliases for the current user. | Optional. Run after `01_install_starter.sh`, as the target user, without `sudo`. |
+| `10_easy_dist-upgrade.sh` | Automates a Debian 11 (Bullseye) to Debian 12 (Bookworm) upgrade and reboots the server. | Legacy, release-specific script. Do not run it on other Debian versions; review its commands and prepare a recovery plan first. |
+| `20_easy_websites_maintenance.sh` | Intended to back up websites and create test clones with a database and Nginx configuration. | Marked **untested** in the script. Do not use on production systems. It assumes an Nginx layout with `sites-available` and `sites-enabled`. |
 
-Those scripts do not configure anything (yet). They just install the needed packages, and YOU should check their documentations in order to get them to suit your needs.
+## Suggested workflow
 
-## Instructions
+1. Clone the repository and review the scripts you plan to use.
+2. Run `01_install_starter.sh` first if you want the common system packages.
+3. Optionally run `04_setup_zsh.sh` as the user whose shell you want to configure. Do not run it with `sudo`.
+4. Run `02_install_web_server.sh` or `03_node_install_and_update.sh` only if you need those components, after reviewing their configuration and prompts.
+5. Treat `10_easy_dist-upgrade.sh` as a legacy upgrade helper and `20_easy_websites_maintenance.sh` as experimental. Inspect them carefully before any use.
 
-It's quite simple, just execute scripts, following their numbers, and your needs !
+## Running a script
 
-### 01_install_starter.sh 
+Make the chosen script executable:
 
-should be the first script you execute.
+```bash
+chmod +x 01_install_starter.sh
+```
 
-It sets whole debian environment up.
+Run system-level scripts with root privileges, for example:
 
-In that case, it mainly brings :
-- ZSH instead of bash, with OhMyZSH additional tools for it's simplicity and aesthetics purposes (see https://ohmyz.sh/)
-- A personalized shell (with neofetch and some OhMyZsh plugins)
-- some tools to improve UX : exa (https://the.exa.website/) instead of ls; htop (https://htop.dev/) instead of top, ...
-- some usefull network tools & CLIs that are not shipped by default with debian (whois, rsync, nettools, ...)
+```bash
+sudo ./01_install_starter.sh
+```
 
-Then, when everything is set up, you could execute following scripts in any order you want (well, basically today there are only one of them ;-D)
+Run the Zsh setup script as the target user, without `sudo`:
 
-### How To execute
+```bash
+chmod +x 04_setup_zsh.sh
+./04_setup_zsh.sh
+```
 
-1. 'git clone' this repo to your ${USER} directory.
-2. you might want to customize the scripts before executing them
-3. then, execute the foollowing command for each script
+Several scripts are interactive. Keep a terminal session open and read each prompt before answering. After installation, consult the documentation for the packages and services you choose to use; installing a package does not necessarily configure or secure it.
 
-$ sudo chmod +x <name_of_the_script> && sudo ./<name_of_the_script>
+## Project status
 
-4. Once the scripts are executed, please refer to each package documentation to configure them to your needs.
+These scripts are maintained for personal use and may require changes for a different Debian release or server setup. The repository currently has no automated test suite. In particular, the distribution upgrade script targets an older Debian release, and the website maintenance script is explicitly marked untested.
