@@ -9,6 +9,9 @@ else
     SUDO=""
 fi
 
+# First thing, first !
+${SUDO} apt-get update && ${SUDO} apt-get full-upgrade -y
+
 # Set the timezone (run 'timedatectl list-timezones' to see available values).
 DEFAULT_TIMEZONE="Europe/Paris"
 while true; do
@@ -25,7 +28,6 @@ done
 ${SUDO} timedatectl set-timezone "$TIMEZONE"
 
 # some might already be installed, depending on your distribution
-${SUDO} apt-get update
 ${SUDO} env DEBIAN_FRONTEND=noninteractive apt-get -y install apticron btop bat ccze cowsay curl dnsutils fail2ban fastfetch fortunes iptables iptables-persistent netcat-openbsd net-tools parted python3-pygments rkhunter rsync screen sudo tmux unzip whois zip zsh
 
 # glpi-agent
