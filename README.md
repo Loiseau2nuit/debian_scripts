@@ -8,7 +8,7 @@ Some scripts install packages or change system configuration. Run only the scrip
 
 | Script | Purpose | Notes |
 | --- | --- | --- |
-| `01_install_starter.sh` | Sets the timezone to `Europe/Paris` and installs common administration tools. | Run as root or with `sudo`. Prompts whether to install GLPI Agent 1.21 and asks for the GLPI server URL. |
+| `01_install_starter.sh` | Prompts for a timezone (default: `Europe/Paris`) and installs common administration tools. | Run as root or with `sudo`. Prompts whether to install GLPI Agent 1.21 and asks for the GLPI server URL. |
 | `02_install_web_server.sh` | Installs Nginx, PHP 8.5 from the Sury repository, MariaDB, and Certbot. | Run as root or with `sudo`. Review the repository and package choices for your Debian release. The script includes interactive configuration steps. |
 | `03_node_install_and_update.sh` | Checks for a Node.js update and can switch the `/opt/node` symlink to a downloaded release after SHA256 verification. | Review the paths and `MAIL_TO` setting at the top of the script. It expects Node.js to be installed under `/opt` and uses email notifications. |
 | `04_setup_zsh.sh` | Sets Zsh as the default shell and configures Oh My Zsh and aliases for the current user. | Optional. Run after `01_install_starter.sh`, as the target user, without `sudo`. |

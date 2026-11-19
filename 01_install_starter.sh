@@ -9,8 +9,20 @@ else
     SUDO=""
 fi
 
-# get the right timezone (see 'timedatectl list-timezones' to fetch yours) 
-${SUDO} timedatectl set-timezone "Europe/Paris"
+# Set the timezone (run 'timedatectl list-timezones' to see available values).
+DEFAULT_TIMEZONE="Europe/Paris"
+while true; do
+    read -rp "Timezone [${DEFAULT_TIMEZONE}] (see 'timedatectl list-timezones'): " TIMEZONE_INPUT
+    TIMEZONE="${TIMEZONE_INPUT:-$DEFAULT_TIMEZONE}"
+
+    if timedatectl list-timezones | grep -Fx -- "$TIMEZONE" >/dev/null; then
+        break
+    fi
+
+    echo "Unknown timezone. Please enter a valid timezone name." >&2
+done
+
+${SUDO} timedatectl set-timezone "$TIMEZONE"
 
 # some might already be installed, depending on your distribution
 ${SUDO} apt-get update
