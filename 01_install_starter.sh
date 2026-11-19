@@ -1,47 +1,32 @@
 #!/bin/bash
 # some usefull packages when it comes to dealing with a debien server
 #
+set -euo pipefail
+
 if [ "$(whoami)" != "root" ]; then
     SUDO=sudo
+else
+    SUDO=""
 fi
 
 # get the right timezone (see 'timedatectl list-timezones' to fetch yours) 
 ${SUDO} timedatectl set-timezone "Europe/Paris"
 
 # some might already be installed, depending on your distribution
-${SUDO} apt-get -y install apticron btop bat ccze cowsay curl dnsutils fail2ban fastfetch fortunes iptables iptables-persistent netcat-openbsd net-tools parted python3-pygments rkhunter rsync screen sudo tmux unzip whois zip zsh
+${SUDO} apt-get update
+${SUDO} env DEBIAN_FRONTEND=noninteractive apt-get -y install apticron btop bat ccze cowsay curl dnsutils fail2ban fastfetch fortunes iptables iptables-persistent netcat-openbsd net-tools parted python3-pygments rkhunter rsync screen sudo tmux unzip whois zip zsh
 
 # glpi-agent
-cd
-wget https://github.com/glpi-project/glpi-agent/releases/download/1.19/glpi-agent_1.19-1_all.deb
-${SUDO} dpkg -i glpi-agent_1.19-1_all.deb
-
-# set ZSH up as your default shell
-${SUDO} chsh -s $(which zsh)
-
-# Install OhMyZsh and follow steps (you'll thank me later !)
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# add some new lines to ~/.zshrc (this part actually needs to be tested)
-echo " " >> ~/.zshrc
-echo " \# some new adds of mine " >> ~/.zshrc
-echo " alias ls='ls -ailsh --color' " >> ~/.zshrc
-echo " alias grep='grep --color' " >> ~/.zshrc
-echo " alias top='btop' " >> ~/.zshrc
-echo " alias cat='batcat' " >> ~/.zshrc
-echo " alias less='batcat' " >> ~/.zshrc
-echo " alias rm='rm -i' " >> ~/.zshrc
-echo " alias mv='mv -i' " >> ~/.zshrc
-echo " alias cp='cp -i' " >> ~/.zshrc
-echo "  " >> ~/.zshrc
-echo " cd ~ " >> ~/.zshrc
-echo " clear " >> ~/.zshrc
-echo " fastfetch " >> ~/.zshrc
-echo " echo \"=========================================================\" " >> ~/.zshrc
-echo " echo \"Checking for upgrades ...\" " >> ~/.zshrc
-echo " apt list --upgradable " >> ~/.zshrc
-echo " echo \"run 'sudo apt update && sudo apt full-upgrade -y' if any.\" " >> ~/.zshrc
-echo " echo \"=========================================================\" " >> ~/.zshrc
-echo "  " >> ~/.zshrc
-echo " chuck_cow " >> ~/.zshrc
-echo " echo \"=========================================================\" " >> ~/.zshrc
+read -rp "Do you want to install glpi-agent? [yes/no] " install_glpi
+if [[ "$install_glpi" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    read -rp "GLPI server URL (e.g. http://glpi.example.tld/front/inventory.php): " glpi_server
+    while [ -z "${glpi_server}" ]; do
+        read -rp "Server URL is required. GLPI server URL: " glpi_server
+    done
+    cd
+    wget https://github.com/glpi-project/glpi-agent/releases/download/1.21/glpi-agent-1.21-linux-installer.pl
+    chmod +x glpi-agent-1.21-linux-installer.pl
+    ${SUDO} perl glpi-agent-1.21-linux-installer.pl -s "${glpi_server}" --runnow --install
+else
+    echo "Skipping glpi-agent installation."
+fi
