@@ -3,6 +3,9 @@
 #
 set -euo pipefail
 
+# Variables
+GLPI_AGENT_VERSION="1.21"
+
 if [ "$(whoami)" != "root" ]; then
     SUDO=sudo
 else
@@ -38,9 +41,10 @@ if [[ "$install_glpi" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         read -rp "Server URL is required. GLPI server URL: " glpi_server
     done
     cd
-    wget https://github.com/glpi-project/glpi-agent/releases/download/1.21/glpi-agent-1.21-linux-installer.pl
-    chmod +x glpi-agent-1.21-linux-installer.pl
-    ${SUDO} perl glpi-agent-1.21-linux-installer.pl -s "${glpi_server}" --runnow --install
+    GLPI_AGENT_INSTALLER="glpi-agent-${GLPI_AGENT_VERSION}-linux-installer.pl"
+    wget "https://github.com/glpi-project/glpi-agent/releases/download/${GLPI_AGENT_VERSION}/${GLPI_AGENT_INSTALLER}"
+    chmod +x "${GLPI_AGENT_INSTALLER}"
+    ${SUDO} perl "${GLPI_AGENT_INSTALLER}" -s "${glpi_server}" --runnow --install
 else
     echo "Skipping glpi-agent installation."
 fi
