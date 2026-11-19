@@ -38,7 +38,7 @@ clear
 fastfetch
 echo "========================================================="
 echo "Checking for upgrades ..."
-apt list --upgradable
+apt list --upgradable 2>/dev/null | cat
 echo "run 'sudo apt update && sudo apt full-upgrade -y' if any."
 echo "========================================================="
 
