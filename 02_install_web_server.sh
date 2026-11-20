@@ -38,7 +38,7 @@ ${SUDO} apt-get install -y php8.5-fpm
 
 ## SECURING MYSQL
 # as we installed mariadb-server we assume you'll want to secure it a bit
-${SUDO} mysql_secure_installation
+${SUDO} mariadb-secure-installation
 
 ## Installing adminer (https://adminer.org)
 # Or maybe not ! I'd rather use a local BDD client from now on
