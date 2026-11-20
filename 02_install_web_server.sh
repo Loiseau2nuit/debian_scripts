@@ -35,11 +35,6 @@ ${SUDO} apt-get install -y php8.5-fpm
 # ${SUDO} apt-get install -y php8.4-cli php8.4-common php8.4-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip}    
 # ${SUDO} apt-get install -y php8.4-fpm
 
-
-## SECURING MYSQL
-# as we installed mariadb-server we assume you'll want to secure it a bit
-${SUDO} mariadb-secure-installation
-
 ## Installing adminer (https://adminer.org)
 # Or maybe not ! I'd rather use a local BDD client from now on
 # (like DBeaver for example). I'm just leaving those lines here to avoid regression. I'll let you choose & uncomment 
