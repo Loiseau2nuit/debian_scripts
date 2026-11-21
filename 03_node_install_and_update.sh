@@ -24,28 +24,28 @@ send_mail() {
 }
 
 handle_error() {
-    log "❌ Une erreur s'est produite. Tentative de rollback."
-    rollback || log "❌ Rollback échoué."
+    log "[ERROR] Une erreur s'est produite. Tentative de rollback."
+    rollback || log "[ERROR] Rollback échoué."
     TAIL_LOG=$(tail -n 50 "$LOG_FILE")
-    send_mail "⚠️ Échec mise à jour Node.js + tentative rollback" "$TAIL_LOG"
+    send_mail "[WARN] Échec mise à jour Node.js + tentative rollback" "$TAIL_LOG"
     exit 1
 }
 
 rollback() {
     if [ -d "$OLD_DIR" ]; then
-        log "🔁 Restauration de la version précédente depuis $OLD_DIR"
+        log "[INFO] Restauration de la version précédente depuis $OLD_DIR"
         rm -rf "$(readlink -f "$SYMLINK")"
         mv "$OLD_DIR" "$(readlink -f "$SYMLINK")"
-        log "✅ Rollback effectué."
+        log "[OK] Rollback effectué."
         return 0
     else
-        log "⚠️ Aucun répertoire $OLD_DIR trouvé pour rollback."
+        log "[WARN] Aucun répertoire $OLD_DIR trouvé pour rollback."
         return 1
     fi
 }
 
 install_script() {
-    log "🔧 Installation initiale..."
+    log "[INFO] Installation initiale..."
 
     # Création du log
     touch "$LOG_FILE"
@@ -59,7 +59,7 @@ install_script() {
             bash "$0"
             exit 0
         else
-            log "⏹️ Installation annulée par l'utilisateur."
+            log "[INFO] Installation annulée par l'utilisateur."
             exit 1
         fi
     fi
@@ -70,7 +70,7 @@ install_script() {
         log "Lien global $GLOBAL_NODE_LINK → $SYMLINK/bin/node créé"
     fi
 
-    log "✅ Installation initiale terminée."
+    log "[OK] Installation initiale terminée."
     exit 0
 }
 
@@ -91,13 +91,13 @@ log "=== Démarrage de la vérification de mise à jour Node.js ==="
 
 # === Étape 0 : Vérifie que Node.js est installé ===
 if [ ! -L "$SYMLINK" ]; then
-    log "❌ Node.js ne semble pas installé (lien $SYMLINK manquant)."
+    log "[ERROR] Node.js ne semble pas installé (lien $SYMLINK manquant)."
     read -rp "Souhaitez-vous procéder à son installation ? [y/N] " reply
     if [[ "$reply" =~ ^[Yy]$ ]]; then
         bash "$0" --install
         exit 0
     else
-        log "⏹️ Vérification annulée."
+        log "[INFO] Vérification annulée."
         exit 1
     fi
 fi
@@ -110,16 +110,16 @@ LOCAL_VERSION=$(basename "$REAL_PATH" | sed -E 's/^node-v//')
 LATEST_VERSION=$(curl -s "$NODEJS_DIST_URL/" | grep -oP 'node-v\K[0-9]+\.[0-9]+\.[0-9]+' | head -n1)
 
 if [ -z "$LATEST_VERSION" ]; then
-    log "❌ Impossible de récupérer la version distante."
+    log "[ERROR] Impossible de récupérer la version distante."
     exit 1
 fi
 
 if [ "$LOCAL_VERSION" = "$LATEST_VERSION" ]; then
-    log "✅ Node.js est à jour (v$LOCAL_VERSION)."
+    log "[OK] Node.js est à jour (v$LOCAL_VERSION)."
     exit 0
 fi
 
-log "🟡 Mise à jour nécessaire : installée = $LOCAL_VERSION / disponible = $LATEST_VERSION"
+log "[INFO] Mise à jour nécessaire : installée = $LOCAL_VERSION / disponible = $LATEST_VERSION"
 
 # === Étape 3 : Téléchargement
 FILENAME="node-v$LATEST_VERSION-$ARCH"
@@ -128,7 +128,7 @@ DOWNLOAD_URL="$NODEJS_DIST_URL/$ARCHIVE_NAME"
 
 rm -rf "$TMP_DIR"
 mkdir -p "$TMP_DIR"
-log "⬇️ Téléchargement de $ARCHIVE_NAME depuis $DOWNLOAD_URL"
+log "[INFO] Téléchargement de $ARCHIVE_NAME depuis $DOWNLOAD_URL"
 curl -sL "$DOWNLOAD_URL" -o "$TMP_DIR/$ARCHIVE_NAME"
 
 # === Étape 4 : Vérification SHA256
@@ -137,32 +137,32 @@ EXPECTED_SHA=$(curl -s "$SHA_URL" | grep "$ARCHIVE_NAME" | awk '{print $1}')
 DOWNLOADED_SHA=$(sha256sum "$TMP_DIR/$ARCHIVE_NAME" | awk '{print $1}')
 
 if [ "$EXPECTED_SHA" != "$DOWNLOADED_SHA" ]; then
-    log "❌ Échec de vérification SHA256."
+    log "[ERROR] Échec de vérification SHA256."
     exit 1
 fi
-log "🔐 Vérification SHA256 réussie"
+log "[OK] Vérification SHA256 réussie"
 
 # === Étape 5 : Extraction
 tar -xf "$TMP_DIR/$ARCHIVE_NAME" -C "$TMP_DIR"
 INSTALL_DIR="/opt/node-v$LATEST_VERSION"
 mv "$TMP_DIR/$FILENAME" "$INSTALL_DIR"
-log "📦 Extraction déployée dans $INSTALL_DIR"
+log "[INFO] Extraction déployée dans $INSTALL_DIR"
 
 # === Étape 6 : Sauvegarde + bascule
 rm -rf "$OLD_DIR"
-log "💾 Sauvegarde de la version actuelle vers $OLD_DIR"
+log "[INFO] Sauvegarde de la version actuelle vers $OLD_DIR"
 mv "$REAL_PATH" "$OLD_DIR"
 
 ln -sfn "$INSTALL_DIR" "$SYMLINK"
-log "🔗 Lien symbolique mis à jour : $SYMLINK → $INSTALL_DIR"
+log "[OK] Lien symbolique mis à jour : $SYMLINK → $INSTALL_DIR"
 
 # === Étape 7 : Lien global vers node
 ln -sf "$SYMLINK/bin/node" "$GLOBAL_NODE_LINK"
-log "🌐 Lien global mis à jour : $GLOBAL_NODE_LINK"
+log "[OK] Lien global mis à jour : $GLOBAL_NODE_LINK"
 
 # === Étape 8 : Nettoyage
 rm -rf "$TMP_DIR"
-log "🧹 Nettoyage terminé"
+log "[OK] Nettoyage terminé"
 
 # === Étape 9 : Notification succès
 BODY="Node.js mis à jour avec succès :
@@ -174,5 +174,5 @@ BODY="Node.js mis à jour avec succès :
 - Date : $(date)
 - Lien symbolique : $SYMLINK → $INSTALL_DIR"
 
-send_mail "✅ Node.js mis à jour vers $LATEST_VERSION" "$BODY"
-log "📧 Notification de succès envoyée à $MAIL_TO"
+send_mail "[OK] Node.js mis à jour vers $LATEST_VERSION" "$BODY"
+log "[INFO] Notification de succès envoyée à $MAIL_TO"

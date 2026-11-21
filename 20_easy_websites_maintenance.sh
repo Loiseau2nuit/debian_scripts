@@ -28,11 +28,11 @@ DB_PASS_DEFAULT=""
 
 # Si un fichier ~/.my.cnf existe, on essaie d’en extraire les infos
 if [ -f ~/.my.cnf ]; then
-  echo "🔍 Fichier ~/.my.cnf détecté — utilisation des identifiants qu’il contient."
+  echo "[INFO] Fichier ~/.my.cnf détecté — utilisation des identifiants qu’il contient."
   DB_USER=$(awk -F= '/user *=/ {gsub(/[[:space:]]/, "", $2); print $2}' ~/.my.cnf | tail -n1)
   DB_PASS=$(awk -F= '/password *=/ {gsub(/[[:space:]]/, "", $2); print $2}' ~/.my.cnf | tail -n1)
 else
-  echo "⚠️  Aucun ~/.my.cnf trouvé — utilisation des valeurs par défaut."
+  echo "[WARN] Aucun ~/.my.cnf trouvé — utilisation des valeurs par défaut."
   DB_USER="$DB_USER_DEFAULT"
   DB_PASS="$DB_PASS_DEFAULT"
 fi
@@ -64,22 +64,22 @@ select_site() {
 backup_site() {
   for SITE in $SITES; do
     SITE_PATH="$WWW_ROOT/$SITE"
-    [ ! -d "$SITE_PATH" ] && echo "⚠️  Dossier $SITE_PATH introuvable" && continue
+    [ ! -d "$SITE_PATH" ] && echo "[WARN] Dossier $SITE_PATH introuvable" && continue
 
     DB_NAME=$(grep -RohP "(?<=DB_NAME[='\"])[^'\"]+" "$SITE_PATH" | head -n1) 
-    [ -z "$DB_NAME" ] && echo "⚠️  Base introuvable dans la config du site $SITE" && continue
+    [ -z "$DB_NAME" ] && echo "[WARN] Base introuvable dans la config du site $SITE" && continue
 
     DATE=$(date +"%F_%H-%M-%S")
     DEST="$BACKUP_ROOT/${SITE}_${DATE}"
     mkdir -p "$DEST"
 
-    echo "🔹 Sauvegarde du site $SITE..."
+    echo "[INFO] Sauvegarde du site $SITE..."
     tar -cJf "$DEST/${SITE}.tar.xz" -C "$WWW_ROOT" "$SITE"
 
-    echo "🔹 Sauvegarde de la base $DB_NAME..."
+    echo "[INFO] Sauvegarde de la base $DB_NAME..."
     mysqldump "${MYSQL_OPTS[@]}" --add-drop-table "$DB_NAME" | gzip > "$DEST/${DB_NAME}.sql.gz"
 
-    echo "✅ Sauvegarde de $SITE terminée → $DEST"
+    echo "[OK] Sauvegarde de $SITE terminée → $DEST"
     echo
   done
 }
@@ -89,35 +89,35 @@ clone_site() {
   echo
   read -rp "Site à dupliquer : " SRC
   SRC_PATH="$WWW_ROOT/$SRC"
-  [ ! -d "$SRC_PATH" ] && echo "❌ Site source introuvable" && exit 1
+  [ ! -d "$SRC_PATH" ] && echo "[ERROR] Site source introuvable" && exit 1
 
   read -rp "Nom du site de test (ex: ${SRC}-test) : " DEST
   DEST_PATH="$WWW_ROOT/$DEST"
   if [ -d "$DEST_PATH" ]; then
-    echo "❌ Le dossier $DEST_PATH existe déjà."
+    echo "[ERROR] Le dossier $DEST_PATH existe déjà."
     exit 1
   fi
 
   # --- Copie fichiers
-  echo "📁 Copie du répertoire..."
+  echo "[INFO] Copie du répertoire..."
   cp -a "$SRC_PATH" "$DEST_PATH"
 
   # --- Base de données
   SRC_DB=$(grep -RohP "(?<=DB_NAME[='\"])[^'\"]+" "$SITE_PATH" | head -n1)
-  [ -z "$SRC_DB" ] && echo "⚠️  Impossible de déterminer la BDD source." && exit 1
+  [ -z "$SRC_DB" ] && echo "[WARN] Impossible de déterminer la BDD source." && exit 1
   DEST_DB="${SRC_DB}_test"
 
-  echo "🗃️  Clonage de la base de données ($SRC_DB → $DEST_DB)..."
+  echo "[INFO] Clonage de la base de données ($SRC_DB → $DEST_DB)..."
   mysql "${MYSQL_OPTS[@]}" -e "DROP DATABASE IF EXISTS \`$DEST_DB\`; CREATE DATABASE \`$DEST_DB\`;"
   mysqldump "${MYSQL_OPTS[@]}" "$SRC_DB" | mysql "${MYSQL_OPTS[@]}" "$DEST_DB"
 
   # --- Configuration PHP
   echo "--------------------------------------------------"
-  echo "🔍 Recherche des versions PHP installées..."
+  echo "[INFO] Recherche des versions PHP installées..."
   PHP_VERSIONS_AVAILABLE=$(ls /run/php/php*-fpm.sock 2>/dev/null | sed -E 's|/run/php/php([0-9.]+)-fpm.sock|\1|' | sort -u)
 
   if [ -z "$PHP_VERSIONS_AVAILABLE" ]; then
-    echo "⚠️  Aucune version PHP-FPM détectée sur le système."
+    echo "[WARN] Aucune version PHP-FPM détectée sur le système."
   else
     echo "Versions PHP disponibles :"
     echo "$PHP_VERSIONS_AVAILABLE" | sed 's/^/  - /'
@@ -128,29 +128,29 @@ clone_site() {
   PHP_SOCK="/run/php/php${PHP_VER}-fpm.sock"
 
   if [ ! -S "$PHP_SOCK" ]; then
-    echo "⚠️  PHP ${PHP_VER} non installé. Souhaitez-vous l’installer ? (o/n)"
+    echo "[WARN] PHP ${PHP_VER} non installé. Souhaitez-vous l’installer ? (o/n)"
     read -r install_choice
     if [[ "$install_choice" =~ ^[oOyY]$ ]]; then
-      echo "📦 Installation de PHP ${PHP_VER}..."
+      echo "[INFO] Installation de PHP ${PHP_VER}..."
       SUDO=$(command -v sudo >/dev/null 2>&1 && echo "sudo" || echo "")
       ${SUDO} apt-get update -qq
       ${SUDO} apt-get install -y php${PHP_VER}-cli php${PHP_VER}-common \
         php${PHP_VER}-{apcu,bz2,curl,gd,imagick,imap,intl,ldap,mbstring,mysql,opcache,readline,snmp,soap,xml,xmlrpc,zip} \
         php${PHP_VER}-fpm
     else
-      echo "❌ Annulation : PHP ${PHP_VER} requis non présent."
+      echo "[ERROR] Annulation : PHP ${PHP_VER} requis non présent."
       exit 1
     fi
   fi
 
-  echo "✅ Utilisation du socket PHP : $PHP_SOCK"
+  echo "[OK] Utilisation du socket PHP : $PHP_SOCK"
 
   # --- Modification config site
-  echo "⚙️  Ajustement du fichier de configuration..."
+  echo "[INFO] Ajustement du fichier de configuration..."
   find "$DEST_PATH" \( -name "*.php" -o -name "*.conf" -o -name "*.env" \) \ -type f -exec sed -i "s/$SRC_DB/$DEST_DB/g" {} +
 
   # --- Configuration Nginx
-  echo "🌐 Génération de la configuration Nginx..."
+  echo "[INFO] Génération de la configuration Nginx..."
   NGINX_CONF="$NGINX_SITES/$DEST.conf"
   SERVER_NAME="${DEST}.local"
 
@@ -177,23 +177,23 @@ EOF
 
   ln -s "$NGINX_CONF" "$NGINX_ENABLED/$DEST.conf" 2>/dev/null || true
 
-  echo "🔎 Vérification de la configuration Nginx…"
+  echo "[INFO] Vérification de la configuration Nginx…"
   if ! nginx -t; then
-      echo "❌ Erreur dans la configuration Nginx"
+      echo "[ERROR] Erreur dans la configuration Nginx"
       echo "---- Dernières lignes du journal Nginx ----"
       journalctl -u nginx -n 20 --no-pager
       exit 1
   fi
 
   if ! systemctl reload nginx; then
-      echo "❌ Impossible de recharger Nginx"
+      echo "[ERROR] Impossible de recharger Nginx"
       echo "---- Dernières lignes du journal Nginx ----"
       journalctl -u nginx -n 20 --no-pager
       exit 1
   fi
 
   echo
-  echo "✅ Copie de test déployée avec succès !"
+  echo "[OK] Copie de test déployée avec succès !"
   echo "URL : http://$SERVER_NAME/"
   echo "BDD : $DEST_DB"
   echo "PHP : $PHP_VER"
@@ -218,7 +218,7 @@ main_menu() {
       clone_site
       ;;
     3)
-      echo "Au revoir 👋"
+      echo "Au revoir."
       exit 0
       ;;
     *)
