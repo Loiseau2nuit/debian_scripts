@@ -2,6 +2,9 @@
 # switching to https://packages.sury.org/ 
 # to get the latest possible nginx & php versions for debian
 #
+set -euo pipefail
+
+SUDO=""
 if [ "$(whoami)" != "root" ]; then
     SUDO=sudo
 fi
