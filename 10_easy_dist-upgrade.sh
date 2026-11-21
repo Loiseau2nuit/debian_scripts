@@ -2,7 +2,9 @@
 # easy dist-upgrade Debian 11 to Debian 12
 # scripted from https://www.it-connect.fr/tuto-mise-a-niveau-debian-11-vers-debian-12-bookworm/
 #
+set -euo pipefail
 
+SUDO=""
 if [ "$(whoami)" != "root" ]; then
     SUDO=sudo
 fi
@@ -39,7 +41,7 @@ ${SUDO} sed -i 's/non-free/non-free non-free-firmware/g' /etc/apt/sources.list.d
 # keeping every modified by config file as is (new one suffixed .dpkg-dist if needed later)
 # see https://raphaelhertzog.com/2010/09/21/debian-conffile-configuration-file-managed-by-dpkg/#:~:text=Avoiding%20the%20conffile%20prompt
 ${SUDO} apt-get update
-DEBIAN_FRONTEND=noninteractive ${SUDO} -E apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y
+${SUDO} env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y
 
 # We're good for a reboot
 ${SUDO} reboot
